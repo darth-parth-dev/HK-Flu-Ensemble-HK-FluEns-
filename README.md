@@ -197,7 +197,7 @@ python 08_ensemble_evaluation.py    # → WIS scores + acceptance verdict
 
 HK-FluEns is designed as a multi-institutional hub. We plan to onboard model contributors from HKU, CUHK, PolyU, and other Hong Kong institutions in Phase 3. See `docs/model-submission-spec.md` (coming Phase 1) for submission format requirements.
 
-**Contact:** Parth Singh | HKU School of Public Health
+**Contact:** Parth Singh | CityU School of Public Health
 **Supervisor:** Mr. Chen JunQiao
 
 ---
