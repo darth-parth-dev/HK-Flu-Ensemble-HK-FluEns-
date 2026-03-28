@@ -25,6 +25,9 @@ df = pd.read_csv(os.path.join(ROOT, 'data/processed/processed_model_ready.csv'),
                  parse_dates=['date'])
 y_raw = df['y_raw'].values
 y_log = df['y_log'].values
+# Guard against -inf / NaN (zeros floored in script 01, but interpolate any residuals)
+y_log = np.where(np.isfinite(y_log), y_log, np.nan)
+y_log = pd.Series(y_log).interpolate(limit_direction='both').values
 print(f"Loaded {len(df)} weekly observations ({df.date.iloc[0].date()} → {df.date.iloc[-1].date()})")
 
 # ── ADF tests ─────────────────────────────────────────────────────────────────

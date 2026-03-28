@@ -33,64 +33,45 @@ AH_MEAN,   AH_STD   = 17.108601, 5.080883
 
 TRAINING_START = '2019-01-06'
 TRAINING_END   = '2026-02-22'
+LOG_FLOOR      = 1e-6   # replace zeros before log to avoid -inf
 
-# ── 1. Parse CHP Excel ────────────────────────────────────────────────────────
+# ── 1. Parse CHP Excel (validation / metadata only) ──────────────────────────
 print("Loading CHP Excel surveillance data …")
 xl  = pd.ExcelFile(os.path.join(ROOT, 'data/raw/raw_chp_weekly.xlsx'))
 raw = xl.parse('Weekly surveillance data 每周監測數據', header=None)
-
-# Identify data rows (rows where col 0 is a 4-digit year)
 mask = pd.to_numeric(raw[0], errors='coerce').notna()
 data = raw[mask].copy().reset_index(drop=True)
-data.columns = range(data.shape[1])
+print(f"  CHP rows parsed: {len(data)} "
+      f"(range {pd.to_datetime(data[2].iloc[0]).date()} → "
+      f"{pd.to_datetime(data[2].iloc[-1]).date()})")
 
-# Extract key columns
-chp = pd.DataFrame({
-    'year':         pd.to_numeric(data[0]),
-    'week':         pd.to_numeric(data[1]),
-    'date_from':    pd.to_datetime(data[2], errors='coerce'),
-    'date_to':      pd.to_datetime(data[3], errors='coerce'),
-    'ili_fmc_raw':  pd.to_numeric(data[4], errors='coerce'),   # Sentinel FMC per 1000
-    'ili_pmp_raw':  pd.to_numeric(data[5], errors='coerce'),   # Sentinel PMP per 1000
-    'pos_H1':       pd.to_numeric(data[6], errors='coerce'),
-    'pos_H3':       pd.to_numeric(data[7], errors='coerce'),
-    'pos_B':        pd.to_numeric(data[8], errors='coerce'),
-    'pos_all':      pd.to_numeric(data[9], errors='coerce'),   # positivity fraction
-    'pos_pct_H1':   pd.to_numeric(data[10], errors='coerce'),
-    'pos_pct_H3':   pd.to_numeric(data[11], errors='coerce'),
-    'pos_pct_B':    pd.to_numeric(data[12], errors='coerce'),
-    'pos_pct_all':  pd.to_numeric(data[13], errors='coerce'),  # overall positivity %
-})
-chp['date'] = chp['date_from']  # Use week-start date as index
-
-# ILI+ = Sentinel FMC rate (per 1000) × positivity fraction / 100
-# When FMC is NaN (pre-2020 for some weeks), fall back to PMP column
-ili_src = chp['ili_fmc_raw'].where(chp['ili_fmc_raw'].notna(), chp['ili_pmp_raw'])
-chp['ili_plus_raw'] = ili_src * chp['pos_pct_all'] / 100
-
-print(f"  CHP rows parsed: {len(chp)} (range {chp.date.min().date()} → {chp.date.max().date()})")
-
-# ── 2. Load COVID-imputed series ──────────────────────────────────────────────
-print("Loading COVID-imputed series …")
-imp = pd.read_csv(
-    os.path.join(ROOT, 'data/processed/processed_covid_imputed_series.csv'),
+# ── 2. Load master dataset (authoritative weekly series with imputed values) ──
+print("Loading master dataset …")
+master = pd.read_csv(
+    os.path.join(ROOT, 'data/processed/processed_master_dataset.csv'),
     parse_dates=['date']
 )
-# Use ili_plus_imputed as the cleaned model target
-imp = imp[['date','year','week','ili_plus_imputed','suppression_flag']].copy()
-imp.columns = ['date','year','week','y_raw','suppression_flag_filled']
-imp['suppression_flag_filled'] = imp['suppression_flag_filled'].astype(int)
 
 # ── 3. Filter to training window ──────────────────────────────────────────────
-imp = imp[(imp['date'] >= TRAINING_START) & (imp['date'] <= TRAINING_END)].reset_index(drop=True)
+imp = master[(master['date'] >= TRAINING_START) &
+             (master['date'] <= TRAINING_END)].copy().reset_index(drop=True)
 print(f"  Training rows: {len(imp)} ({imp.date.iloc[0].date()} → {imp.date.iloc[-1].date()})")
+
+# Use ili_plus_imputed (COVID gap filled) as model target; fall back to ili_plus
+y_raw = imp['ili_plus_imputed'].where(imp['ili_plus_imputed'].notna(), imp['ili_plus'])
+y_raw = y_raw.where(imp['ili_plus_imputed'].notna(), imp['ili_plus_model'])
+imp['y_raw'] = np.maximum(y_raw.fillna(0), 0)
+
+suppression = imp['suppression_flag'].astype(bool) if 'suppression_flag' in imp.columns \
+              else imp['covid_suppressed'].astype(bool)
+imp['suppression_flag_filled'] = suppression.astype(int)
 
 # ── 4. Add month, post-COVID flag ─────────────────────────────────────────────
 imp['month'] = imp['date'].dt.month
 imp['post_covid'] = (imp['date'] >= '2022-10-01').astype(int)
 
-# ── 5. Log transform (ILI+ → log scale) ──────────────────────────────────────
-imp['y_log'] = np.log(imp['y_raw'])
+# ── 5. Log transform — floor zeros to avoid -inf ─────────────────────────────
+imp['y_log'] = np.log(np.maximum(imp['y_raw'], LOG_FLOOR))
 
 # ── 6. Add HKO climate regressors ────────────────────────────────────────────
 imp['hko_temp_norm'] = imp['month'].map(HKO_TEMP)
