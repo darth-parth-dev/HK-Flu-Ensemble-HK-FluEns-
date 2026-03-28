@@ -1,0 +1,7 @@
+# Baseline SARIMA model — standalone model package (Phase 0/1).
+# When the hub architecture matures (Phase 3), each model team will have their
+# own directory here with:
+#   model.py           — Model implementation
+#   requirements.txt   — Model-specific dependencies
+#   metadata.json      — Model card: method, data sources, contact
+#   README.md          — Model description

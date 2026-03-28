@@ -1,0 +1,7 @@
+# Scoring utilities (Phase 0).
+# Will contain:
+#   wis.py             — Weighted Interval Score implementation (FluSight-compatible)
+#   wave_detector.py   — Wave onset/peak/offset detection for bimodal HK seasons
+#   wave_eval.py       — Wave-stratified WIS (winter peak / summer peak / trough)
+#   loso_cv.py         — Leave-one-season-out cross-validation harness
+#   awbe.py            — Adaptive Weight Blending Ensemble weight solver

@@ -1,0 +1,2 @@
+# WIS scores, wave-stratified metrics, model weight tables (generated artefacts).
+# Populated by scoring/wis.py after each forecast round.

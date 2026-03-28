@@ -1,0 +1,6 @@
+# This directory will contain validated FluSight-format model submissions.
+# Each model team submits a CSV file per forecast date following the spec in
+# docs/model-submission-spec.md (coming Phase 1).
+#
+# Naming convention: YYYY-MM-DD-<model_id>.csv
+# Example:          2026-09-05-HKU_SARIMA.csv

@@ -1,0 +1,8 @@
+# Automated ETL pipeline (Phase 1).
+# Will contain:
+#   chp_etl.py         — CHP Flu Express PDF scraper → master dataset
+#   flunet_pull.py     — WHO FluNet weekly API pull
+#   hko_pull.py        — HKO actual weather data feed
+#   wastewater_pull.py — Wastewater surveillance integration
+#   travel_pull.py     — HK–Mainland cross-border travel volumes
+#   run_pipeline.py    — Orchestrator: runs all ETL steps in sequence

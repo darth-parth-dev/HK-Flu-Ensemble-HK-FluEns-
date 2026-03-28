@@ -1,0 +1,5 @@
+# Ground-truth weekly observations for scoring.
+# Populated automatically by the ETL pipeline (Phase 1).
+#
+# Format: target-data/YYYY-MM-DD.csv
+# Columns: date, target, value, source

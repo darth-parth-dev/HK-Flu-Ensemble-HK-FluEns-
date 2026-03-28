@@ -1,0 +1,113 @@
+{
+  "model": {
+    "name": "HK Influenza ARIMAX Forecaster",
+    "version": "2.0",
+    "type": "ARIMAX",
+    "order": [
+      1,
+      0,
+      1
+    ],
+    "seasonal_differencing": {
+      "D": 1,
+      "S": 52
+    },
+    "optimiser": "L-BFGS-B",
+    "max_iterations": 3000,
+    "convergence_tolerance": 1e-12
+  },
+  "regressors": {
+    "names": [
+      "temp_climatological",
+      "abs_humidity_climatological"
+    ],
+    "normalise": true,
+    "normalisation": "z-score (zero mean, unit variance)",
+    "source": "HKO 30-year climatological normals 1991-2020",
+    "extended_tested_but_excluded": [
+      "h3n2_fraction",
+      "vaccination_coverage"
+    ],
+    "extended_exclusion_reason": "\u0394AIC=+2.18 and \u0394BIC=+8.69 favour parsimonious model"
+  },
+  "data": {
+    "primary_source": "CHP Weekly Influenza Surveillance",
+    "target_variable": "ILI+ (ili_pmp x pos_total)",
+    "date_range": {
+      "start": "2019-01-05",
+      "end": "2026-02-14"
+    },
+    "total_weeks": 296,
+    "training_weeks": 244,
+    "training_end": "2025-02-15",
+    "forecast_horizon_weeks": 52
+  },
+  "covid_imputation": {
+    "window_start": "2020-04-01",
+    "window_end": "2022-09-30",
+    "weeks_imputed": 54,
+    "suppression_threshold_pct_of_pre_covid_median": 5.0,
+    "method": "Seasonal decomposition + Kalman smoothing (na_seadec equivalent)",
+    "pseudo_validation_mape_pct": 76.3
+  },
+  "uncertainty": {
+    "method": "Bootstrap prediction intervals",
+    "n_bootstrap_draws": 500,
+    "interval_levels": [
+      80,
+      95
+    ],
+    "rationale": "Shapiro-Wilk p<0.0001 invalidates Gaussian PI assumption"
+  },
+  "cross_validation": {
+    "method": "Rolling-origin (walk-forward)",
+    "n_windows": 4,
+    "min_training_weeks": 156,
+    "step_size_weeks": 26,
+    "forecast_horizon_weeks": 52,
+    "scoring": "Non-imputed weeks only"
+  },
+  "random_seeds": {
+    "global": 42,
+    "pseudo_validation": 42,
+    "bootstrap": 42
+  },
+  "model_selection": {
+    "candidates_evaluated": 9,
+    "candidate_space": "ARIMAX(p,0,q)[S=52] for p,q in {0,1,2}",
+    "selection_criteria": [
+      "AIC",
+      "BIC"
+    ],
+    "selected_model": "ARIMAX(1,0,1)[S=52]",
+    "selected_AIC": -1772.62,
+    "selected_BIC": -1756.33
+  },
+  "fitted_parameters": {
+    "mu_intercept": 7.6e-05,
+    "phi1_AR1": 0.7902,
+    "theta1_MA1": 0.3198,
+    "beta_temp_normalised": -0.00084,
+    "beta_AH_normalised": 0.00086,
+    "sigma_squared": 5.44e-06
+  },
+  "diagnostics": {
+    "ljung_box_p_value": 0.6767,
+    "ljung_box_interpretation": "Fail to reject H0 (white noise) \u2014 residuals adequate",
+    "residual_AR1_autocorr": 0.003741,
+    "residual_skewness": 0.9385,
+    "shapiro_wilk_p": "<0.0001",
+    "shapiro_wilk_action": "Bootstrap PI used instead of Gaussian"
+  },
+  "accuracy_metric_policy": {
+    "primary_metric": "MAE (mean absolute error in ILI+ units)",
+    "MAPE_status": "DROPPED \u2014 unreliable due to near-zero ILI+ values between peaks",
+    "reported_metrics": [
+      "MAE",
+      "peak_timing_error_weeks",
+      "peak_magnitude_error_pct",
+      "PI_coverage_80pct",
+      "PI_coverage_95pct"
+    ]
+  }
+}
