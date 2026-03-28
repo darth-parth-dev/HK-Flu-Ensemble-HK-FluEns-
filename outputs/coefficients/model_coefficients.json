@@ -1,20 +1,20 @@
 {
   "model_spec": "SARIMA(1,0,1)(0,1,0)[52] with exogenous regressors",
   "parameters": {
-    "mu_intercept": 7.6e-05,
-    "phi1_AR1": 0.7902,
-    "theta1_MA1": 0.3198,
-    "beta_temp_z": -0.00084,
-    "beta_ah_z": 0.00086,
-    "sigma": 0.00233238,
-    "sigma_squared": 5.44e-06
+    "mu_intercept": 6.149e-05,
+    "phi1_AR1": 0.8377,
+    "theta1_MA1": 0.1796,
+    "beta_temp_z": 0.0036,
+    "beta_ah_z": -0.004,
+    "sigma": 0.00231766,
+    "sigma_squared": 5.37e-06
   },
   "model_diagnostics": {
-    "AIC": -1772.62,
-    "BIC": -1756.33,
-    "ljung_box_p": 0.6767,
-    "residual_AR1": 0.003741,
-    "residual_skewness": 0.9385
+    "AIC": -2952.75,
+    "BIC": -2930.16,
+    "ljung_box_p": 0.0012,
+    "residual_AR1": 0.129416,
+    "residual_skewness": 0.3798
   },
   "training_data": {
     "n_weeks": 373,
