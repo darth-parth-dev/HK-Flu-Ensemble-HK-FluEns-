@@ -1,0 +1,62 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "01 - Data Preparation",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/01_data_preparation.py"],
+      "port": null
+    },
+    {
+      "name": "02 - Stationarity & ACF/PACF",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/02_stationarity_acf_pacf.py"],
+      "port": null
+    },
+    {
+      "name": "03 - Model Fitting",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/03_model_fitting.py"],
+      "port": null
+    },
+    {
+      "name": "04 - Residual Diagnostics",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/04_residual_diagnostics.py"],
+      "port": null
+    },
+    {
+      "name": "05 - Forecast Generation",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/05_forecast_generation.py"],
+      "port": null
+    },
+    {
+      "name": "06 - Figures & Narrative",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/06_figures_and_narrative.py"],
+      "port": null
+    },
+    {
+      "name": "07 - Ensemble Model",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/07_ensemble_model.py"],
+      "port": null
+    },
+    {
+      "name": "08 - Ensemble Evaluation",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/08_ensemble_evaluation.py"],
+      "port": null
+    },
+    {
+      "name": "Full Pipeline (01 → 06)",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd scripts && for s in 01_data_preparation.py 02_stationarity_acf_pacf.py 03_model_fitting.py 04_residual_diagnostics.py 05_forecast_generation.py 06_figures_and_narrative.py; do echo \">>> $s\"; python $s || exit 1; done"
+      ],
+      "port": null
+    }
+  ]
+}
